@@ -38,12 +38,13 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
     # for distances below 200
     elif control_dist_km < 200:
         (hours, minutes) = h_m_at_speed(control_dist_km, TOP_SPEEDS['to200'])
-        open_time = brevet_start_time.shift(hours=hours, minutes=minutes)
+        open_time = brevet_start_time.shift(
+            hours=hours, minutes=round(minutes))
     # for distances below 400
     elif control_dist_km < 400:
-        first_200: Tuple[int, int] = h_m_at_speed(200, TOP_SPEEDS['to200'])
+        first_200: Tuple[int, float] = h_m_at_speed(200, TOP_SPEEDS['to200'])
         remaining_distance = control_dist_km - 200
-        second_200: Tuple[int, int] = h_m_at_speed(
+        second_200: Tuple[int, float] = h_m_at_speed(
             remaining_distance, TOP_SPEEDS['to400'])
         (total_hours, total_minutes) = (
             first_200[0] + second_200[0]), (first_200[1] + second_200[1])
@@ -52,14 +53,14 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
             (total_hours, total_minutes) = carry_m_to_h(
                 total_hours, total_minutes)
         open_time = brevet_start_time.shift(
-            hours=total_hours, minutes=total_minutes)
+            hours=total_hours, minutes=round(total_minutes))
     # for distances below 600
     elif control_dist_km < 600:
-        first_200: Tuple[int, int] = h_m_at_speed(200, TOP_SPEEDS['to200'])
-        second_200: Tuple[int, int] = h_m_at_speed(
+        first_200: Tuple[int, float] = h_m_at_speed(200, TOP_SPEEDS['to200'])
+        second_200: Tuple[int, float] = h_m_at_speed(
             200, TOP_SPEEDS['to400'])
         remaining_distance = control_dist_km - 400
-        third_200: Tuple[int, int] = h_m_at_speed(
+        third_200: Tuple[int, float] = h_m_at_speed(
             remaining_distance, TOP_SPEEDS['to600'])
         (total_hours, total_minutes) = (
             first_200[0] + second_200[0]) + third_200[0], (first_200[1] + second_200[1] + third_200[1])
@@ -68,15 +69,15 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
             (total_hours, total_minutes) = carry_m_to_h(
                 total_hours, total_minutes)
         open_time = brevet_start_time.shift(
-            hours=total_hours, minutes=total_minutes)
+            hours=total_hours, minutes=round(total_minutes))
     elif control_dist_km < 1000:
-        first_200: Tuple[int, int] = h_m_at_speed(200, TOP_SPEEDS['to200'])
-        second_200: Tuple[int, int] = h_m_at_speed(
+        first_200: Tuple[int, float] = h_m_at_speed(200, TOP_SPEEDS['to200'])
+        second_200: Tuple[int, float] = h_m_at_speed(
             200, TOP_SPEEDS['to400'])
-        third_200: Tuple[int, int] = h_m_at_speed(
+        third_200: Tuple[int, float] = h_m_at_speed(
             200, TOP_SPEEDS['to600'])
         remaining_distance = control_dist_km - 600
-        final_400: Tuple[int, int] = h_m_at_speed(
+        final_400: Tuple[int, float] = h_m_at_speed(
             remaining_distance, TOP_SPEEDS['to1000'])
         (total_hours, total_minutes) = (
             first_200[0] + second_200[0]) + third_200[0] + final_400[0], (first_200[1] + second_200[1] + third_200[1] + final_400[1])
@@ -85,7 +86,7 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
             (total_hours, total_minutes) = carry_m_to_h(
                 total_hours, total_minutes)
         open_time = brevet_start_time.shift(
-            hours=total_hours, minutes=total_minutes)
+            hours=total_hours, minutes=round(total_minutes))
     # a 1000km brevet may have a final controle up to 20% greater than 1000
     # round(1000 + 1000 * .2)
     # should never end up here
@@ -97,15 +98,17 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
     #  return arrow.now()
 
 
-def h_m_at_speed(dist: float, speed: int) -> Tuple[int, int]:
+def h_m_at_speed(dist: float, speed: int) -> Tuple[int, float]:
+    # keeping minutes as a float because if I round here and then sum later
+    # there will be inappropriate rounding errors
     hours = int(dist // speed)
-    minutes = round(dist % speed / speed * 60)
+    minutes = dist % speed / speed * 60
     return (hours, minutes)
 
 
-def carry_m_to_h(hours: int, minutes: int) -> Tuple[int, int]:
+def carry_m_to_h(hours: int, minutes: float) -> Tuple[int, float]:
     hours += int(minutes // 60)
-    minutes = round(minutes % 60)
+    minutes = minutes % 60
     return(hours, minutes)
 
 
@@ -136,7 +139,7 @@ def main():
           open_time(890, 1000, start_time))
     print("test open_time 299 (s.b. 22:59)", open_time(299, 1000, start_time))
     print("test open_time 300 (s.b. 23:00)", open_time(300, 1000, start_time))
-    print("test open_time 301 (s.b. 23:02)", open_time(300, 1000, start_time))
+    print("test open_time 301 (s.b. 23:02)", open_time(301, 1000, start_time))
 
 
 if __name__ == "__main__":
