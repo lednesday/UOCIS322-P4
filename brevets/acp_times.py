@@ -17,6 +17,27 @@ from typing import List, Dict, Tuple
 #
 
 TOP_SPEEDS: dict = {'to200': 34, 'to400': 32, 'to600': 30, 'to1000': 28}
+MIN_SPEEDS: dict = {'to600': 15, 'to1000': 11.428}
+TIME_LIMITS: dict = {200: 13.5, 300: 20,
+                     400: 27, 600: 40, 1000: 75}
+
+
+# helper function that returns
+# how long it take to go a certain distance at a certain speed
+def h_m_at_speed(dist: float, speed: int) -> Tuple[int, float]:
+    # keeping minutes as a float because if I round here and then sum later
+    # there will be inappropriate rounding errors
+    hours = int(dist // speed)
+    minutes = dist % speed / speed * 60
+    return (hours, minutes)
+
+
+# helper function to carry minutes over to hours
+# probably totally unnecessary because arrow is such a helpful library
+def carry_m_to_h(hours: int, minutes: float) -> Tuple[int, float]:
+    hours += int(minutes // 60)
+    minutes = minutes % 60
+    return(hours, minutes)
 
 
 def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: Arrow):
@@ -112,21 +133,6 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
         open_time = arrow.get(
             '0000-00-00 00:00:00', 'YYYY-MM-DD HH:mm:ss')
     return open_time
-    #  return arrow.now()
-
-
-def h_m_at_speed(dist: float, speed: int) -> Tuple[int, float]:
-    # keeping minutes as a float because if I round here and then sum later
-    # there will be inappropriate rounding errors
-    hours = int(dist // speed)
-    minutes = dist % speed / speed * 60
-    return (hours, minutes)
-
-
-def carry_m_to_h(hours: int, minutes: float) -> Tuple[int, float]:
-    hours += int(minutes // 60)
-    minutes = minutes % 60
-    return(hours, minutes)
 
 
 def close_time(control_dist_km, brevet_dist_km, brevet_start_time):
@@ -145,8 +151,36 @@ def close_time(control_dist_km, brevet_dist_km, brevet_start_time):
     # special case: if control_dist_km == 0, return brevet_start_time + 1 hour
     if control_dist_km == 0:
         return brevet_start_time.shift(hours=1)
-
-    return arrow.now()
+    # special cases: for controle_dist > brevet_Dist,
+    # controle distances can be up to 20% longer
+    # but the controle times remain fixed at their brevet_dist values
+    elif (brevet_dist_km <= control_dist_km) and (control_dist_km <= round(brevet_dist_km + brevet_dist_km * .2)):
+        hours = TIME_LIMITS.get(brevet_dist_km)
+        close_time = brevet_start_time.shift(
+            hours=hours)
+    # distances up to 600km
+    elif control_dist_km <= 600:
+        (hours, minutes) = h_m_at_speed(control_dist_km, MIN_SPEEDS['to600'])
+        close_time = brevet_start_time.shift(
+            hours=hours, minutes=round(minutes))
+    elif control_dist_km <= 1000:
+        first_600: Tuple[int, float] = h_m_at_speed(600, MIN_SPEEDS['to600'])
+        remaining_distance = control_dist_km - 600
+        final_400: Tuple[int, float] = h_m_at_speed(
+            remaining_distance, MIN_SPEEDS['to1000'])
+        (total_hours, total_minutes) = (
+            first_600[0] + final_400[0]), (first_600[1] + final_400[1])
+        # summing minutes may result in more than 60, so we need to carry over into hour
+        if total_minutes >= 60:
+            (total_hours, total_minutes) = carry_m_to_h(
+                total_hours, total_minutes)
+            close_time = brevet_start_time.shift(
+                hours=total_hours, minutes=round(total_minutes))
+    else:
+        # indicate error for now by returning datetime arrow with all 0's
+        open_time = arrow.get(
+            '0000-00-00 00:00:00', 'YYYY-MM-DD HH:mm:ss')
+    return close_time
 
 
 def main():
@@ -161,6 +195,9 @@ def main():
           open_time(1000, 1000, start_time))
     print("test open_time 1000 (s.b. 23:05)",
           open_time(1005, 1000, start_time))
+
+    print("test close_time 200 (s.b. 3:30)",
+          close_time(200, 200, start_time))
 
 
 if __name__ == "__main__":

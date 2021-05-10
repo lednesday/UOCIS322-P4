@@ -3,11 +3,10 @@ Nose tests for acp_times.py
 """
 
 
-from acp_times import open_time
+from acp_times import open_time, close_time
 import logging
 import nose    # Testing framework
 import arrow
-from acp_times import *
 
 ''' Not sure what this logging block is for but copying it from Project 3'''
 logging.basicConfig(format='%(levelname)s:%(message)s',
@@ -46,12 +45,12 @@ def test_open_normal():
         '2021-02-21 19:09:00', 'YYYY-MM-DD HH:mm:ss')
 
 
-# def test_close_normal():
-#     for dist in brevet_dists:
-#         assert close_time(100, dist, start_time) == arrow.get(
-#             '2021-02-20 20:40:00', 'YYYY-MM-DD HH:mm:ss')
-#     assert close_time(456, 1000, start_time) == arrow.get(
-#         '2021-02-21 20:24:00', 'YYYY-MM-DD HH:mm:ss')
+def test_close_normal():
+    for dist in brevet_dists:
+        assert close_time(100, dist, start_time) == arrow.get(
+            '2021-02-20 20:40:00', 'YYYY-MM-DD HH:mm:ss')
+    assert close_time(456, 1000, start_time) == arrow.get(
+        '2021-02-21 20:24:00', 'YYYY-MM-DD HH:mm:ss')
 
 
 def test_open_corners():
@@ -72,18 +71,18 @@ def test_open_corners():
         '2021-02-21 23:05:00', 'YYYY-MM-DD HH:mm:ss')
 
 
-# def test_close_corners():
-#     assert close_time(200, 300, start_time) == arrow.get(
-#         '2021-02-21 03:20:00', 'YYYY-MM-DD HH:mm:ss')
-#     for dist in brevet_dists:
-#         assert close_time(300, dist, start_time) == arrow.get(
-#             '2021-02-21 10:00:00', 'YYYY-MM-DD HH:mm:ss')
-#     assert close_time(400, 600, start_time) == arrow.get(
-#         '2021-02-21 16:40:00', 'YYYY-MM-DD HH:mm:ss')
-#     assert close_time(600, 600, start_time) == arrow.get(
-#         '2021-02-22 06:00:00', 'YYYY-MM-DD HH:mm:ss')
-#     assert close_time(600, 1000, start_time) == arrow.get(
-#         '2021-02-22 06:00:00', 'YYYY-MM-DD HH:mm:ss')
+def test_close_corners():
+    assert close_time(200, 300, start_time) == arrow.get(
+        '2021-02-21 03:20:00', 'YYYY-MM-DD HH:mm:ss')
+    for dist in brevet_dists:
+        assert close_time(300, dist, start_time) == arrow.get(
+            '2021-02-21 10:00:00', 'YYYY-MM-DD HH:mm:ss')
+    assert close_time(400, 600, start_time) == arrow.get(
+        '2021-02-21 16:40:00', 'YYYY-MM-DD HH:mm:ss')
+    assert close_time(600, 600, start_time) == arrow.get(
+        '2021-02-22 06:00:00', 'YYYY-MM-DD HH:mm:ss')
+    assert close_time(600, 1000, start_time) == arrow.get(
+        '2021-02-22 06:00:00', 'YYYY-MM-DD HH:mm:ss')
 
 
 def test_oddities():
@@ -91,27 +90,26 @@ def test_oddities():
     for dist in brevet_dists:
         assert open_time(0, dist, start_time) == arrow.get(
             '2021-02-20 14:00:00', 'YYYY-MM-DD HH:mm:ss')
-#         assert close_time(0, dist, start_time) == arrow.get(
-#             '2021-02-20 15:00:00', 'YYYY-MM-DD HH:mm:ss')
-#     # by the rules the time for a 200km brevet is 13H30
-#     assert close_time(200, 200, start_time) == arrow.get(
-#         '2021-02-21 03:30:00', 'YYYY-MM-DD HH:mm:ss')
-#     # there seems to be a similar extension at 400km
-#     assert close_time(400, 400, start_time) == arrow.get(
-#         '2021-02-21 17:00:00', 'YYYY-MM-DD HH:mm:ss')
-#     # just guessing this is another oddity
-#     assert close_time(1000, 1000, start_time) == arrow.get(
-#         '2021-02-23 17:00:00', 'YYYY-MM-DD HH:mm:ss')
+        assert close_time(0, dist, start_time) == arrow.get(
+            '2021-02-20 15:00:00', 'YYYY-MM-DD HH:mm:ss')
+    # by the rules the time for a 200km brevet is 13H30
+    assert close_time(200, 200, start_time) == arrow.get(
+        '2021-02-21 03:30:00', 'YYYY-MM-DD HH:mm:ss')
+    # there seems to be a similar extension at 400km
+    assert close_time(400, 400, start_time) == arrow.get(
+        '2021-02-21 17:00:00', 'YYYY-MM-DD HH:mm:ss')
+    # just guessing this is another oddity
+    assert close_time(1000, 1000, start_time) == arrow.get(
+        '2021-02-23 17:00:00', 'YYYY-MM-DD HH:mm:ss')
     assert open_time(1005, 1000, start_time) == arrow.get(
         '2021-02-21 23:05:00', 'YYYY-MM-DD HH:mm:ss')
-#     assert close_time(1005, 1000, start_time) == arrow.get(
-#         '2021-02-23 17:00:00', 'YYYY-MM-DD HH:mm:ss')
+    assert close_time(1005, 1000, start_time) == arrow.get(
+        '2021-02-23 17:00:00', 'YYYY-MM-DD HH:mm:ss')
 
 
 # def test_invalids():
-#     # if last controle is more than 20% over brevet distance, error
-#     # TODO: not sure what to do for error should result
+    # if last controle is more than 20% over brevet distance, error
     assert open_time(241, 200, start_time) != arrow.get(
         '2021-02-20 19:53:00', 'YYYY-MM-DD HH:mm:ss')
-#     assert close_time(241, 200, start_time) != arrow.get(
-#         '2021-02-21 03:30:00', 'YYYY-MM-DD HH:mm:ss')
+    assert close_time(241, 200, start_time) != arrow.get(
+        '2021-02-21 03:30:00', 'YYYY-MM-DD HH:mm:ss')
