@@ -35,13 +35,18 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
     # special case: if control_dist_km == 0, open_time is brevet_start_time
     if control_dist_km == 0:
         open_time = brevet_start_time
-    # for distances below 200
-    elif control_dist_km < 200:
+    # for distances below 200 - normal case
+    elif control_dist_km <= 200:
         (hours, minutes) = h_m_at_speed(control_dist_km, TOP_SPEEDS['to200'])
         open_time = brevet_start_time.shift(
             hours=hours, minutes=round(minutes))
+    # special case: if brevet_dist == 200, controle distances can be up to 20% longer
+    # but the controle times remain fixed at their 200 values
+    elif (brevet_dist_km == 200) and (control_dist_km <= round(200 + 200 * .2)):
+        open_time = brevet_start_time.shift(
+            hours=5, minutes=53)
     # for distances below 400
-    elif control_dist_km < 400:
+    elif control_dist_km <= 400:
         first_200: Tuple[int, float] = h_m_at_speed(200, TOP_SPEEDS['to200'])
         remaining_distance = control_dist_km - 200
         second_200: Tuple[int, float] = h_m_at_speed(
@@ -54,8 +59,13 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
                 total_hours, total_minutes)
         open_time = brevet_start_time.shift(
             hours=total_hours, minutes=round(total_minutes))
+    # special case: if brevet_dist == 400km, controle distances can be up to 20% longer
+    # but the controle times remain fixed at their 400km values
+    elif (brevet_dist_km == 400) and (control_dist_km <= round(400 + 400 * .2)):
+        open_time = brevet_start_time.shift(
+            hours=12, minutes=8)
     # for distances below 600
-    elif control_dist_km < 600:
+    elif control_dist_km <= 600:
         first_200: Tuple[int, float] = h_m_at_speed(200, TOP_SPEEDS['to200'])
         second_200: Tuple[int, float] = h_m_at_speed(
             200, TOP_SPEEDS['to400'])
@@ -70,7 +80,15 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
                 total_hours, total_minutes)
         open_time = brevet_start_time.shift(
             hours=total_hours, minutes=round(total_minutes))
-    elif control_dist_km < 1000:
+    # special case: if brevet_dist == 600, controle distances can be up to 20% longer
+    # but the controle times remain fixed at their 600km values
+    elif (brevet_dist_km == 600) and (control_dist_km <= round(600 + 600 * .2)):
+        open_time = brevet_start_time.shift(
+            hours=18, minutes=48)
+    # a 1000km brevet may have a final controle up to 20% greater than 1000
+    elif control_dist_km < round(1000 + 1000 * .2):
+        if control_dist_km > 1000:
+            control_dist_km = 1000
         first_200: Tuple[int, float] = h_m_at_speed(200, TOP_SPEEDS['to200'])
         second_200: Tuple[int, float] = h_m_at_speed(
             200, TOP_SPEEDS['to400'])
@@ -87,8 +105,7 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
                 total_hours, total_minutes)
         open_time = brevet_start_time.shift(
             hours=total_hours, minutes=round(total_minutes))
-    # a 1000km brevet may have a final controle up to 20% greater than 1000
-    # round(1000 + 1000 * .2)
+
     # should never end up here
     else:
         # indicate error for now by returning datetime arrow with all 0's
@@ -140,6 +157,10 @@ def main():
     print("test open_time 299 (s.b. 22:59)", open_time(299, 1000, start_time))
     print("test open_time 300 (s.b. 23:00)", open_time(300, 1000, start_time))
     print("test open_time 301 (s.b. 23:02)", open_time(301, 1000, start_time))
+    print("test open_time 1000 (s.b. 23:05)",
+          open_time(1000, 1000, start_time))
+    print("test open_time 1000 (s.b. 23:05)",
+          open_time(1005, 1000, start_time))
 
 
 if __name__ == "__main__":

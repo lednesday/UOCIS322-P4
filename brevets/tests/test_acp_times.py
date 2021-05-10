@@ -61,15 +61,15 @@ def test_open_corners():
     for dist in brevet_dists:
         assert open_time(300, dist, start_time) == arrow.get(
             '2021-02-20 23:00:00', 'YYYY-MM-DD HH:mm:ss')
-    # for dist in brevet_dists:
-    #     assert open_time(400, dist, start_time) == arrow.get(
-    #         '2021-02-21 02:08:00', 'YYYY-MM-DD HH:mm:ss')
-    # assert open_time(600, 600, start_time) == arrow.get(
-    #     '2021-02-21 08:48:00', 'YYYY-MM-DD HH:mm:ss')
-    # assert open_time(600, 1000, start_time) == arrow.get(
-    #     '2021-02-21 08:48:00', 'YYYY-MM-DD HH:mm:ss')
-    # assert open_time(1000, 1000, start_time) == arrow.get(
-    #     '2021-02-21 23:05:00', 'YYYY-MM-DD HH:mm:ss')
+    for dist in brevet_dists:
+        assert open_time(400, dist, start_time) == arrow.get(
+            '2021-02-21 02:08:00', 'YYYY-MM-DD HH:mm:ss')
+    assert open_time(600, 600, start_time) == arrow.get(
+        '2021-02-21 08:48:00', 'YYYY-MM-DD HH:mm:ss')
+    assert open_time(600, 1000, start_time) == arrow.get(
+        '2021-02-21 08:48:00', 'YYYY-MM-DD HH:mm:ss')
+    assert open_time(1000, 1000, start_time) == arrow.get(
+        '2021-02-21 23:05:00', 'YYYY-MM-DD HH:mm:ss')
 
 
 # def test_close_corners():
@@ -102,8 +102,8 @@ def test_oddities():
 #     # just guessing this is another oddity
 #     assert close_time(1000, 1000, start_time) == arrow.get(
 #         '2021-02-23 17:00:00', 'YYYY-MM-DD HH:mm:ss')
-#     assert open_time(1005, 1000, start_time) == arrow.get(
-#         '2021-02-21 23:05:00', 'YYYY-MM-DD HH:mm:ss')
+    assert open_time(1005, 1000, start_time) == arrow.get(
+        '2021-02-21 23:05:00', 'YYYY-MM-DD HH:mm:ss')
 #     assert close_time(1005, 1000, start_time) == arrow.get(
 #         '2021-02-23 17:00:00', 'YYYY-MM-DD HH:mm:ss')
 
@@ -111,7 +111,7 @@ def test_oddities():
 # def test_invalids():
 #     # if last controle is more than 20% over brevet distance, error
 #     # TODO: not sure what to do for error should result
-#     assert open_time(241, 200, start_time) != arrow.get(
-#         '2021-02-20 19:53:00', 'YYYY-MM-DD HH:mm:ss')
+    assert open_time(241, 200, start_time) != arrow.get(
+        '2021-02-20 19:53:00', 'YYYY-MM-DD HH:mm:ss')
 #     assert close_time(241, 200, start_time) != arrow.get(
 #         '2021-02-21 03:30:00', 'YYYY-MM-DD HH:mm:ss')
