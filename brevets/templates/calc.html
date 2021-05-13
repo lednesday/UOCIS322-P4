@@ -119,18 +119,29 @@
             // Right now, only the kilometers are passed
             // you need to pass much more!
             // View flask_brevets.py for details.
+            // TODO: when start time or brevet distance change, already-entered rows don't refresh/recalculate
             function calc_times(control) {
               var km = control.find("input[name='km']").val();
               var open_time_field = control.find("input[name='open']");
               var close_time_field = control.find("input[name='close']");
+              
+              // TODO: do I need event handlers here? Answer: no
+              var brevet_dist = $("#brevet_dist_km").val();
+              var start_time = $("#begin_date").val();
+              console.log("brevet_dist:", brevet_dist);
+              console.log("start_time:", start_time);
 
-              $.getJSON(TIME_CALC_URL, {km: km}).done(
+
+              $.getJSON(TIME_CALC_URL, {km: km, brevet_dist: brevet_dist, start_time: start_time}).done(
                 function(data) {
                    var times = data.result;
                    console.log("Got a response: ");
                    console.log("Response.open = " + times.open);
                    // This part will automatically fill the open and close slots,
                    // so don't worry about those.
+                   // TODO: error handling - add "success" boolean to JSON return object,
+                   // then if success do the next 2 lines; otherwise
+                   // have an empty div in html and fill with error message
                    open_time_field.val(moment(times.open).format("YYYY-MM-DDTHH:mm"));
                    close_time_field.val(moment(times.close).format("YYYY-MM-DDTHH:mm"));
                  }
@@ -153,6 +164,7 @@
                        var target = control_entry.find("input[name='km']");
                        target.val( km );
                        // Then calculate times for this entry
+                       // TODO: it calls its own superordinate function?
                        calc_times(control_entry);
                     });
 
@@ -168,8 +180,10 @@
                        calc_times(control_entry);
                     });
 
-               });
+               // TODO: 2 more event handlers for change in brevet_dist or start_time
 
+               });
+            // TODO: function to re-calculate all rows
          </script>
       </div>
    </body>

@@ -17,7 +17,7 @@ import logging
 ###
 app = flask.Flask(__name__)
 CONFIG = config.configuration()
-app.secret_key = CONFIG.SECRET_KEY
+# app.secret_key = CONFIG.SECRET_KEY
 
 ###
 # Pages
@@ -34,7 +34,7 @@ def index():
 @app.errorhandler(404)
 def page_not_found(error):
     app.logger.debug("Page not found")
-    flask.session['linkback'] = flask.url_for("index")
+    # flask.session['linkback'] = flask.url_for("index")
     return flask.render_template('404.html'), 404
 
 
@@ -55,12 +55,15 @@ def _calc_times():
     km = request.args.get('km', 999, type=float)
     app.logger.debug("km={}".format(km))
     app.logger.debug("request.args: {}".format(request.args))
-    # FIXME!
-    # Right now, only the current time is passed as the start time
-    # and control distance is fixed to 200
-    # You should get these from the webpage!
-    open_time = acp_times.open_time(km, 200, arrow.now().isoformat).format('YYYY-MM-DDTHH:mm')
-    close_time = acp_times.close_time(km, 200, arrow.now().isoformat).format('YYYY-MM-DDTHH:mm')
+    brevet_dist = request.args.get('brevet_dist', 200, type=int)
+    start_time_string = request.args.get(
+        'start_time', '2021-02-20T14:00', type=str)
+    start_time = arrow.get(start_time_string, 'YYYY-MM-DDTHH:mm')
+    open_time = acp_times.open_time(
+        km, brevet_dist, start_time).format('YYYY-MM-DDTHH:mm')
+    close_time = acp_times.close_time(
+        km, brevet_dist, start_time).format('YYYY-MM-DDTHH:mm')
+    # TODO: include "success" and possibly "error" in result
     result = {"open": open_time, "close": close_time}
     return flask.jsonify(result=result)
 

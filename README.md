@@ -3,9 +3,14 @@ Brevet time calculator.
 
 ## Overview
 
-Reimplement the RUSA ACP controle time calculator with flask and ajax.
+Reimplements the RUSA ACP controle time calculator with flask and ajax.
 
 ### ACP controle times
+
+controle distances more than 20% over the brevet distance are not allowed
+controle distances in miles are converted to kilometers, truncated to the nearest integer
+controle distances in kilometers with precision more than ones are rounded to the nearest integer
+
 
 That's *"controle"* with an *e*, because it's French, although "control" is also accepted. Controls are points where a rider must obtain proof of passage, and control[e] times are the minimum and maximum times by which the rider must arrive at the location.
 

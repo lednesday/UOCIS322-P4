@@ -28,10 +28,11 @@ open_time and close_time
 """
 
 brevet_dists: list = [200, 300, 400, 600, 1000]
-control_dist_corners = [200, 400, 600, 1000]
+# control_dist_corners = [200, 400, 600, 1000]
 start_time = arrow.get('2021-02-20 14:00:00', 'YYYY-MM-DD HH:mm:ss')
 
-# I thought about using nested loops, but the oracle value is different for each combination
+# I thought about using nested loops with control_dist,
+# but the oracle value is different for each combination
 
 
 def test_open_normal():
@@ -105,9 +106,18 @@ def test_oddities():
         '2021-02-21 23:05:00', 'YYYY-MM-DD HH:mm:ss')
     assert close_time(1005, 1000, start_time) == arrow.get(
         '2021-02-23 17:00:00', 'YYYY-MM-DD HH:mm:ss')
+    # test French system for short controle points
+    assert close_time(10, 200, start_time) == arrow.get(
+        '2021-02-20 15:30:00', 'YYYY-MM-DD HH:mm:ss')
+    assert close_time(59, 200, start_time) == arrow.get(
+        '2021-02-20 17:57:00', 'YYYY-MM-DD HH:mm:ss')
+    assert close_time(60, 200, start_time) == arrow.get(
+        '2021-02-20 18:00:00', 'YYYY-MM-DD HH:mm:ss')
+    assert close_time(61, 200, start_time) == arrow.get(
+        '2021-02-20 18:04:00', 'YYYY-MM-DD HH:mm:ss')
 
 
-# def test_invalids():
+def test_invalids():
     # if last controle is more than 20% over brevet distance, error
     assert open_time(241, 200, start_time) != arrow.get(
         '2021-02-20 19:53:00', 'YYYY-MM-DD HH:mm:ss')

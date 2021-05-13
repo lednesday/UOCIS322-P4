@@ -7,7 +7,7 @@ and https://rusa.org/pages/rulesForRiders
 from sys import setdlopenflags
 import arrow
 from arrow import Arrow
-from typing import List, Dict, Tuple
+from typing import Dict, Tuple
 
 
 #  You MUST provide the following two functions
@@ -16,9 +16,9 @@ from typing import List, Dict, Tuple
 #  same arguments.
 #
 
-TOP_SPEEDS: dict = {'to200': 34, 'to400': 32, 'to600': 30, 'to1000': 28}
-MIN_SPEEDS: dict = {'to600': 15, 'to1000': 11.428}
-TIME_LIMITS: dict = {200: 13.5, 300: 20,
+TOP_SPEEDS: Dict = {'to200': 34, 'to400': 32, 'to600': 30, 'to1000': 28}
+MIN_SPEEDS: Dict = {'to600': 15, 'to1000': 11.428}
+TIME_LIMITS: Dict = {200: 13.5, 300: 20,
                      400: 27, 600: 40, 1000: 75}
 
 
@@ -132,6 +132,7 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
         # indicate error for now by returning datetime arrow with all 0's
         open_time = arrow.get(
             '0000-00-00 00:00:00', 'YYYY-MM-DD HH:mm:ss')
+      #   open_time = None
     return open_time
 
 
@@ -147,10 +148,9 @@ def close_time(control_dist_km, brevet_dist_km, brevet_start_time):
        A date object indicating the control close time.
        This will be in the same time zone as the brevet start time.
     """
-
     # special case: if control_dist_km == 0, return brevet_start_time + 1 hour
     if control_dist_km == 0:
-        return brevet_start_time.shift(hours=1)
+        close_time = brevet_start_time.shift(hours=1)
     # special cases: for controle_dist > brevet_Dist,
     # controle distances can be up to 20% longer
     # but the controle times remain fixed at their brevet_dist values
@@ -158,7 +158,13 @@ def close_time(control_dist_km, brevet_dist_km, brevet_start_time):
         hours = TIME_LIMITS.get(brevet_dist_km)
         close_time = brevet_start_time.shift(
             hours=hours)
-    # distances up to 600km
+    # distances < 60km
+    elif control_dist_km < 60:
+        (hours, minutes) = h_m_at_speed(control_dist_km, 20)
+        hours += 1
+        close_time = brevet_start_time.shift(
+            hours=hours, minutes=round(minutes))
+        # distances up to 600km
     elif control_dist_km <= 600:
         (hours, minutes) = h_m_at_speed(control_dist_km, MIN_SPEEDS['to600'])
         close_time = brevet_start_time.shift(
@@ -174,28 +180,29 @@ def close_time(control_dist_km, brevet_dist_km, brevet_start_time):
         if total_minutes >= 60:
             (total_hours, total_minutes) = carry_m_to_h(
                 total_hours, total_minutes)
-            close_time = brevet_start_time.shift(
-                hours=total_hours, minutes=round(total_minutes))
+        close_time = brevet_start_time.shift(
+            hours=total_hours, minutes=round(total_minutes))
     else:
         # indicate error for now by returning datetime arrow with all 0's
-        open_time = arrow.get(
+        close_time = arrow.get(
             '0000-00-00 00:00:00', 'YYYY-MM-DD HH:mm:ss')
+      #   close_time = None
     return close_time
 
 
 def main():
     start_time = arrow.get('2021-02-20 14:00:00', 'YYYY-MM-DD HH:mm:ss')
+    # below are a bunch of test print statements used for debugging
     print("test open_time 100 (s.b. 16:56): ", open_time(100, 200, start_time))
-    print("test open_time 890 (s.b. 19:09): ",
-          open_time(890, 1000, start_time))
-    print("test open_time 299 (s.b. 22:59)", open_time(299, 1000, start_time))
-    print("test open_time 300 (s.b. 23:00)", open_time(300, 1000, start_time))
-    print("test open_time 301 (s.b. 23:02)", open_time(301, 1000, start_time))
-    print("test open_time 1000 (s.b. 23:05)",
-          open_time(1000, 1000, start_time))
-    print("test open_time 1000 (s.b. 23:05)",
-          open_time(1005, 1000, start_time))
-
+   #  print("test open_time 890 (s.b. 19:09): ",
+   #        open_time(890, 1000, start_time))
+   #  print("test open_time 299 (s.b. 22:59)", open_time(299, 1000, start_time))
+   #  print("test open_time 300 (s.b. 23:00)", open_time(300, 1000, start_time))
+   #  print("test open_time 301 (s.b. 23:02)", open_time(301, 1000, start_time))
+   #  print("test open_time 1000 (s.b. 23:05)",
+   #        open_time(1000, 1000, start_time))
+   #  print("test open_time 1000 (s.b. 23:05)",
+   #        open_time(1005, 1000, start_time))
     print("test close_time 200 (s.b. 3:30)",
           close_time(200, 200, start_time))
 
