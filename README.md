@@ -21,11 +21,27 @@ Randonneuring is a type of cycling event where riders ride a course of at least 
 * Due to the hour-long start window, the closing times for the first 60km are somewhat different. The minimum pace is 20km/hr, plus an additional hour added on. At 60km this formula produces the same result as the normal formula, and the normal algorithm takes over.
 * Note that as the paces slow for longer brevet distances, the slower pace windows only apply to the later intervals. Thus the windows for a controle at 500km will have the 0-200km times for the first 200km, plus the 200-400km times for the next 200km, and then the 400-600 times for the remaining 100k.
 
+## Operation instructions
+### Normal operation
+Download (clone) this repository.
+You may wish to create your own credentials.ini file, using credentials-skel.ini as a model.
+Navigate to the vocab directory. 
+### To use Docker
+Make sure Docker is installed on your machine (https://docs.docker.com/get-docker/)
+Build a Docker image with docker build -t [name of image] . (the . is part of the command).
+Run the image with docker run -d -p [your choice of port]:5000 [name of image]
+Open a browser and navigate to the address of your machine and the port you've selected.
+To end the program, find the process with Docker ps. Then stop the process with docker stop [process number or name]. Then if desired clear the process with docker rm [process number or name].
+### To run locally without Docker
+Run the program with python3 flask_vocab.py.
+Open a browser on your local machine and look in localhost:5000.
+To end the program, you may need to use CTRL-c.
+
 ### Testing
 
 The script test_acp_times.py tests the open_time and close_time functions in acp_times.py, comparing the results of those functions with the online calculator mentioned above. You can run these tests from within the brevets directory by typing "nosetests" at a command line prompt; you can also move one directory up and directly run "./run_tests.sh". 
 
-### Needed improvements / bugs
+## Needed improvements / bugs
 
 The app currently works fully to project specifications. However, it would be better with a few improvements:
 * Currently if a user changes the start time or brevet distance, already-existing controle opening and closing times do not change. The app will be better if there are event handlers for changes in these values that trigger an update to the opening and closing times for all existing controle distances that a user has entered.
