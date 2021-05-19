@@ -66,6 +66,11 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
     elif (brevet_dist_km == 200) and (control_dist_km <= round(200 + 200 * .2)):
         open_time = brevet_start_time.shift(
             hours=5, minutes=53)
+    # special case: if brevet_dist == 300km, controle distances can be up to 20% longer
+    # but the controle times remain fixed at their 300km values
+    elif (brevet_dist_km == 300) and (control_dist_km <= round(300 + 300 * .2)):
+        open_time = brevet_start_time.shift(
+            hours=9)
     # for distances below 400
     elif control_dist_km <= 400:
         first_200: Tuple[int, float] = h_m_at_speed(200, TOP_SPEEDS['to200'])
@@ -199,6 +204,8 @@ def main():
    #  print("test open_time 299 (s.b. 22:59)", open_time(299, 1000, start_time))
    #  print("test open_time 300 (s.b. 23:00)", open_time(300, 1000, start_time))
    #  print("test open_time 301 (s.b. 23:02)", open_time(301, 1000, start_time))
+    print("test open_time 301 (s.b. 23:00)", open_time(301, 300, start_time))
+
    #  print("test open_time 1000 (s.b. 23:05)",
    #        open_time(1000, 1000, start_time))
    #  print("test open_time 1000 (s.b. 23:05)",

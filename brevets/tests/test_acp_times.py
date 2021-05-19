@@ -102,6 +102,12 @@ def test_oddities():
     # just guessing this is another oddity
     assert close_time(1000, 1000, start_time) == arrow.get(
         '2021-02-23 17:00:00', 'YYYY-MM-DD HH:mm:ss')
+    # final controle can be up through 20% longer than brevet distance
+    assert close_time(310, 300, start_time) == arrow.get(
+        '2021-02-21 10:00:00', 'YYYY-MM-DD HH:mm:ss')
+    # TODO: this is super-weird - even when this is broken in acp_times.py, it passes
+    assert open_time(301, 300, start_time) == arrow.get(
+        '2021-02-20 23:00:00', 'YYYY-MM-DD HH:mm:ss')
     assert open_time(1005, 1000, start_time) == arrow.get(
         '2021-02-21 23:05:00', 'YYYY-MM-DD HH:mm:ss')
     assert close_time(1005, 1000, start_time) == arrow.get(
