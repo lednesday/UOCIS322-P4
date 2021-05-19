@@ -68,7 +68,7 @@ def open_time(control_dist_km: float, brevet_dist_km: float, brevet_start_time: 
             hours=5, minutes=53)
     # special case: if brevet_dist == 300km, controle distances can be up to 20% longer
     # but the controle times remain fixed at their 300km values
-    elif (brevet_dist_km == 300) and (control_dist_km <= round(300 + 300 * .2)):
+    elif (brevet_dist_km == 300) and (control_dist_km <= round(300 + 300 * .2)) and (control_dist_km >= 300):
         open_time = brevet_start_time.shift(
             hours=9)
     # for distances below 400
@@ -196,22 +196,23 @@ def close_time(control_dist_km, brevet_dist_km, brevet_start_time):
 
 
 def main():
-    start_time = arrow.get('2021-02-20 14:00:00', 'YYYY-MM-DD HH:mm:ss')
+    # start_time = arrow.get('2021-02-20 14:00:00', 'YYYY-MM-DD HH:mm:ss')
     # below are a bunch of test print statements used for debugging
-    print("test open_time 100 (s.b. 16:56): ", open_time(100, 200, start_time))
+    # print("test open_time 100 (s.b. 16:56): ", open_time(100, 200, start_time))
    #  print("test open_time 890 (s.b. 19:09): ",
    #        open_time(890, 1000, start_time))
    #  print("test open_time 299 (s.b. 22:59)", open_time(299, 1000, start_time))
    #  print("test open_time 300 (s.b. 23:00)", open_time(300, 1000, start_time))
    #  print("test open_time 301 (s.b. 23:02)", open_time(301, 1000, start_time))
-    print("test open_time 301 (s.b. 23:00)", open_time(301, 300, start_time))
+    # print("test open_time 301 (s.b. 23:00)", open_time(301, 300, start_time))
+    # print("test open_time 201 (s.b. 19:55)", open_time(201, 300, start_time))
 
    #  print("test open_time 1000 (s.b. 23:05)",
    #        open_time(1000, 1000, start_time))
    #  print("test open_time 1000 (s.b. 23:05)",
    #        open_time(1005, 1000, start_time))
-    print("test close_time 200 (s.b. 3:30)",
-          close_time(200, 200, start_time))
+    # print("test close_time 200 (s.b. 3:30)",
+    #       close_time(200, 200, start_time))
 
 
 if __name__ == "__main__":
