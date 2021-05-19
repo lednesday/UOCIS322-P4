@@ -213,6 +213,7 @@ def main():
    #        open_time(1005, 1000, start_time))
     # print("test close_time 200 (s.b. 3:30)",
     #       close_time(200, 200, start_time))
+    pass
 
 
 if __name__ == "__main__":
